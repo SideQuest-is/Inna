@@ -18,7 +18,7 @@ function Get-InnaStudentByKennitala {
         Returns the student information for the specified kennitala
 
     .EXAMPLE
-        "1203902229","130495-2319" | Get-InnaStudentByKennitala
+        "1203902229","1304952319" | Get-InnaStudentByKennitala
         Returns student information for multiple kennitolur passed through the pipeline
 
     .INPUTS
