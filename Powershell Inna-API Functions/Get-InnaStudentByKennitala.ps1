@@ -8,7 +8,7 @@ function Get-InnaStudentByKennitala {
         It returns detailed user information for each provided kennitala from the Inna system.
         The function requires an active Inna authentication context with a valid access token.
 
-    .PARAMETER Kenntolur
+    .PARAMETER Kennitolur
         An array of kennitala (Icelandic ID numbers) to look up.
         The kennitala should be in the format "DDMMYYXXXX".
         Multiple kennitolur can be provided either as an array or through pipeline input.
@@ -18,7 +18,7 @@ function Get-InnaStudentByKennitala {
         Returns the student information for the specified kennitala
 
     .EXAMPLE
-        "1203902229","1304952319" | Get-InnaStudentByKennitala
+        "1203902229","130495-2319" | Get-InnaStudentByKennitala
         Returns student information for multiple kennitolur passed through the pipeline
 
     .INPUTS
@@ -41,8 +41,8 @@ function Get-InnaStudentByKennitala {
 
 #region Parameters
     Param(
-        [Parameter(Mandatory=$true, ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true, position=0, HelpMessage="Nynemi")]
-        [array] $Kenntolur 
+        [Parameter(Mandatory=$true, ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true, position=0, HelpMessage="Kennitölur - Format '0000000000','1111111111'")]
+        [array] $Kennitolur 
     )
     #EndRegion
 
@@ -52,7 +52,7 @@ function Get-InnaStudentByKennitala {
     $Notendur = @()
      $uriPrefix = $Global:BaseUri 
      #Region Create the paraemeter and get the Students
-     foreach ( $KT in $Kenntolur ) {
+     foreach ( $KT in $Kennitolur ) {
         $uri = @()
         $uri = ($uriPrefix  + "/api/EducationCloud/users/$KT")
 
