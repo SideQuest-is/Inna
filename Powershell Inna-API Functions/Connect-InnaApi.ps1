@@ -52,6 +52,8 @@ function Connect-Inna {
             $baseuri = "https://api-v3-test.inna.is"         
         }
 
+        $Expring = (Get-Date).AddMinutes(15) 
+
         #$baseuri = "https://$SchoolName-api.starfsmenn.is"
          #Global variable to store the base URI for API calls
          $Global:BaseUri = $baseuri
@@ -79,11 +81,12 @@ function Connect-Inna {
     $uri = $authUri
     
     $response = Invoke-RestMethod -Uri $uri -Method 'POST' -Headers $headers -Body $body
- 
+    
      # Create a global variable to store the access token
      $Global:InnaContext = @{
         Client_ID = $client_id
         Access_token = $response.Access_token
+        Expires = $Expring
         }
 
  
