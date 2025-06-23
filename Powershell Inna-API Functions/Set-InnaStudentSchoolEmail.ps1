@@ -38,21 +38,23 @@ function Set-InnaStudentSchoolEmail {
     
     $uriPrefix = $Global:BaseUri 
     #Region Create the paraemeter and update the Student account with the new email address    
+    
     $body = @{
-        updateUserRequest = @{
-            email = $Email
-        }
-    } | ConvertTo-Json
+        email = $Email        
+    } | ConvertTo-Json -depth 10
     
         $uri = @()
         $uri = ($uriPrefix  + "/api/EducationCloud/users/$Kennitala")
 
         $params = @()
-        $params = @{uri = $uri;
+        $params = @{
+            uri = $uri;
             Method = 'Put'; 
-            Headers = @{Authorization = 'Bearer ' + $global:InnaContext.access_Token;} #end headers hash table
+            Headers = @{
+                Authorization = 'Bearer ' + $global:InnaContext.access_Token;
+            } 
             ContentType = 'application/json';
-            Body = $body
+            Body = $body;
         }
 
         $return = Invoke-Restmethod @params 
