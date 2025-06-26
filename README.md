@@ -13,6 +13,8 @@ if((Test-path $profile) -eq $false){
     #Seting the execution policy to allow script execution
     Set-ExecutionPolicy -ExecutionPolicy remotesigned
 }
+
+
 #path to inna functions
 $uris = (
 "https://raw.githubusercontent.com/SideQuest-is/Inna/refs/heads/main/Powershell%20Inna-API%20Functions/Connect-InnaApi.ps1",
@@ -20,6 +22,8 @@ $uris = (
 "https://raw.githubusercontent.com/SideQuest-is/Inna/refs/heads/main/Powershell%20Inna-API%20Functions/Get-InnaStudents.ps1",
 "https://raw.githubusercontent.com/SideQuest-is/Inna/refs/heads/main/Powershell%20Inna-API%20Functions/Set-InnaStudentSchoolEmail.ps1"
 )
+
+
 #Importing functions into the profile
 foreach ($uri in $uris){
 Invoke-RestMethod -method GET -uri $uri | out-file $profile -Append
