@@ -8,9 +8,9 @@ function Get-InnaStudentByKennitala {
         It returns detailed user information for each provided kennitala from the Inna system.
         The function requires an active Inna authentication context with a valid access token.
 
-    .PARAMETER Kennitolur
+    .PARAMETER Kenntolur
         An array of kennitala (Icelandic ID numbers) to look up.
-        The kennitala should be in the format "DDMMYYXXXX".
+        The kennitala should be in the format "0123456789".
         Multiple kennitolur can be provided either as an array or through pipeline input.
 
     .EXAMPLE
@@ -31,8 +31,7 @@ function Get-InnaStudentByKennitala {
 
     .NOTES
         Requires:
-        - Valid Inna API authentication context 
-
+        - Valid Inna API authentication context use Connect-Inna with valid credentials
     #>
 
 #region Tab Completion
@@ -42,7 +41,7 @@ function Get-InnaStudentByKennitala {
 #region Parameters
     Param(
         [Parameter(Mandatory=$true, ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true, position=0, HelpMessage="Kennitölur - Format '0000000000','1111111111'")]
-        [array] $Kennitolur 
+        [array] $Kenntolur 
     )
     #EndRegion
 
@@ -50,9 +49,10 @@ function Get-InnaStudentByKennitala {
 
 
     $Notendur = @()
-     $uriPrefix = $Global:BaseUri 
-     #Region Create the paraemeter and get the Students
-     foreach ( $KT in $Kennitolur ) {
+    $uriPrefix = $Global:BaseUri 
+
+#Region Create the paraemeter and get the Students
+    foreach ( $KT in $Kenntolur ) {
         $uri = @()
         $uri = ($uriPrefix  + "/api/EducationCloud/users/$KT")
 
@@ -62,20 +62,21 @@ function Get-InnaStudentByKennitala {
                     Headers = @{Authorization = 'Bearer ' + $global:InnaContext.access_Token;} #end headers hash table
         } 
         $Notendur += Invoke-Restmethod @params |ConvertTo-Json -Depth 3
-        }
-            #EndRegion
-        $Notendur = $notendur |ConvertFrom-Json 
-        #Region Return the results
-                return $Notendur.users
-               #EndRegion
+    }
+        #EndRegion
+        
+    #Region Return
+        $Notendur = $notendur |ConvertFrom-Json
+        return $Notendur.users
+        #EndRegion
 
 
     #endregion
 
-    #region Powershell menu settings
-    # Enables strict mode, which helps detect common coding errors
-    Set-StrictMode -Version Latest
-    # Sets the Tab key to the MenuComplete function, which provides tab-completion for parameter names
-    Set-PSReadlineKeyHandler -Key Tab -Function MenuComplete
+#region Powershell menu settings
+        # Enables strict mode, which helps detect common coding errors
+        Set-StrictMode -Version Latest
+        # Sets the Tab key to the MenuComplete function, which provides tab-completion for parameter names
+        Set-PSReadlineKeyHandler -Key Tab -Function MenuComplete
     #endregion
 }
