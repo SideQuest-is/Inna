@@ -61,7 +61,9 @@ function Connect-Inna {
          #AuthUri = $Global:BaseUri + "/auth/token" 
         #EndRegion
  #region Working Code
-
+if(!$prod -And !$Test){
+    $prod = $true
+}
  
      $headers = @{
         'accept' = 'application/json'
