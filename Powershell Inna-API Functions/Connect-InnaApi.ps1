@@ -43,6 +43,9 @@ function Connect-Inna {
 
 
  #Region Variables
+        if(!$prod -And !$Test){
+            $prod = $true
+        }
         if ($Prod) {
             $authUri = "https://heimdallur.inna.is/api/auth/token"
             $baseuri = "https://api-v3.inna.is"  
@@ -61,10 +64,7 @@ function Connect-Inna {
          #AuthUri = $Global:BaseUri + "/auth/token" 
         #EndRegion
  #region Working Code
-if(!$prod -And !$Test){
-    $prod = $true
-}
- 
+
      $headers = @{
         'accept' = 'application/json'
         'Content-Type' = 'application/x-www-form-urlencoded'
