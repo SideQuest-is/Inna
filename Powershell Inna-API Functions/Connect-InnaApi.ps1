@@ -44,7 +44,8 @@ function Connect-Inna {
 
  #Region Variables
         if(!$prod -And !$Test){
-            $prod = $true
+            $authUri = "https://heimdallur.inna.is/api/auth/token"
+            $baseuri = "https://api-v3.inna.is"
         }
         if ($Prod) {
             $authUri = "https://heimdallur.inna.is/api/auth/token"
