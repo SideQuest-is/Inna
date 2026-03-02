@@ -9,8 +9,10 @@ function Update-InnaStudentsSchoolEmail {
     .DESCRIPTION
         Long description of the function.
 
+    .OUTPUTS
+
     .EXAMPLE
-  
+
     .NOTES
         Author: Sidequest.is    
         Email: sidequest@sidequest.is
@@ -91,7 +93,6 @@ function Update-InnaStudentsSchoolEmail {
     $uriPrefix = $Global:BaseUri
     $uriSuffix = "/api/EducationCloud/users/email"
     $uri = $uriPrefix, $uriSuffix -join("")
-
     $header = @{
         Authorization = 'Bearer ' + $global:InnaContext.access_Token;
         "Accept" = "text/plain";
@@ -103,7 +104,6 @@ function Update-InnaStudentsSchoolEmail {
 
         )
     } 
-    
     #AD Variables
     $Properties = ("UserPrincipalName","extensionAttribute11")
     $ADUsers = @()
@@ -219,7 +219,7 @@ function Update-InnaStudentsSchoolEmail {
 
             if($body.userEmailUpdates.count -gt 490){
                 try { 
-                    $json = $body |ConvertTo-Json -depth 2 -orde            
+                    $json = $body |ConvertTo-Json -depth 2
                     $response = Invoke-Restmethod -uri $uri -Method $Method -header $header -body $json -ErrorAction Stop
                     $response
                 } catch {
