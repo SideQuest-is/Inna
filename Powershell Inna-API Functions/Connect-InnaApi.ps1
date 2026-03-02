@@ -17,7 +17,8 @@ function Connect-Inna {
          Connect-Inna -uri 
          Connects to a custom API endpoint using prompted credentials    
      .NOTES
-
+        Author: Sidequest.is
+        Email:support@sidequest.is
      #>
      
  
@@ -43,17 +44,15 @@ function Connect-Inna {
 
 
  #Region Variables
-        if(!$prod -And !$Test){
-            $authUri = "https://heimdallur.inna.is/api/auth/token"
-            $baseuri = "https://api-v3.inna.is"
-        }
         if ($Prod) {
             $authUri = "https://heimdallur.inna.is/api/auth/token"
-            $baseuri = "https://api-v3.inna.is"  
+            $baseuri = "https://api-v3.inna.is"
+            $Enviroment = "Production"  
         }
         if ($Test) {
             $authUri = "https://heimdallur-test.inna.is/api/auth/token"
-            $baseuri = "https://api-v3-test.inna.is"         
+            $baseuri = "https://api-v3-test.inna.is"
+            $Enviroment = "Test"    
         }
 
         $Expring = (Get-Date).AddMinutes(15) 
@@ -66,6 +65,7 @@ function Connect-Inna {
         #EndRegion
  #region Working Code
 
+ 
      $headers = @{
         'accept' = 'application/json'
         'Content-Type' = 'application/x-www-form-urlencoded'
@@ -90,7 +90,8 @@ function Connect-Inna {
         Client_ID = $client_id
         Access_token = $response.Access_token
         Expires = $Expring
-        }
+        Enviroment = $Enviroment
+    }
 
  
      #return $response
