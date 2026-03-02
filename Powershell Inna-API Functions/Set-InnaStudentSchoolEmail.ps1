@@ -19,6 +19,8 @@ function Set-InnaStudentSchoolEmail {
 .EXAMPLE
     "1234567890" | Set-InnaStudentSchoolEmail -Email "newstudent@gymnasium.is"    
     Uses pipeline input to set the school email for the student with the specified kennitala
+    Author: Sidequest.is
+    Email:support@sidequest.is
 #>
 
 #region Tab Completion
