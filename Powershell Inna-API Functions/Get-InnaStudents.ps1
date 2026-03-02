@@ -108,6 +108,8 @@ function Get-InnaStudents {
     .NOTES
         Requires valid Inna API authentication token in $global:InnaContext.access_Token
         Requires $Global:BaseUri to be set with the base URI for Inna API
+        Author: Sidequest.is
+        Email:support@sidequest.is
     #>
 
 #region Tab Completion
@@ -267,7 +269,8 @@ function Get-InnaStudents {
         "Bidlisti_1")
     }
           
-     #EndRegion
+    #EndRegion
+    
     $Notendur = @()
      $uriPrefix = $Global:BaseUri 
      #Region Create the paraemeter and get the Students
@@ -285,7 +288,7 @@ function Get-InnaStudents {
             #EndRegion
         $Notendur = $notendur |ConvertFrom-Json 
         #Region Return the results
-                return $Notendur
+                return $Notendur.users
                #EndRegion
 
 
