@@ -1,0 +1,64 @@
+name: Publish InnaPs Module
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  packages: write
+  contents: read
+
+jobs:
+  publish:
+    name: Publish InnaPs to GitHub Packages
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Extract version from tag
+        id: version
+        shell: bash
+        run: |
+          TAG="${GITHUB_REF#refs/tags/v}"
+          echo "version=$TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Update module manifest version
+        shell: pwsh
+        run: |
+          $manifestPath = "./InnaPs/InnaPs.psd1"
+          Update-ModuleManifest -Path $manifestPath -ModuleVersion "${{ steps.version.outputs.version }}"
+
+      - name: Validate module
+        shell: pwsh
+        run: |
+          $manifest = Test-ModuleManifest -Path "./InnaPs/InnaPs.psd1" -ErrorAction Stop
+          Write-Host "Module Name   : $($manifest.Name)"
+          Write-Host "Module Version: $($manifest.Version)"
+          Write-Host "Functions     : $($manifest.ExportedFunctions.Keys -join ', ')"
+
+      - name: Register GitHub Packages as PSRepository
+        shell: pwsh
+        run: |
+          $repoParams = @{
+            Name               = "GitHubPackages"
+            SourceLocation     = "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
+            PublishLocation    = "https://nuget.pkg.github.com/${{ github.repository_owner }}/"
+            InstallationPolicy = "Trusted"
+          }
+
+          # Unregister if already exists (idempotent)
+          if (Get-PSRepository -Name "GitHubPackages" -ErrorAction SilentlyContinue) {
+            Unregister-PSRepository -Name "GitHubPackages"
+          }
+
+          Register-PSRepository @repoParams
+
+      - name: Publish module to GitHub Packages
+        shell: pwsh
+        env:
+          NUGET_API_KEY: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          Publish-Module -Path "./InnaPs" -Repository "GitHubPackages" -NuGetApiKey $env:NUGET_API_KEY -Verbose
