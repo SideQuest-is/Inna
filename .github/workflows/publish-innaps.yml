@@ -25,6 +25,12 @@ jobs:
           TAG="${GITHUB_REF#refs/tags/v}"
           echo "version=$TAG" >> "$GITHUB_OUTPUT"
 
+      - name: Install NuGet provider and PowerShellGet
+        shell: pwsh
+        run: |
+          Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force -Scope CurrentUser
+          Install-Module -Name PowerShellGet -Force -AllowClobber -Scope CurrentUser
+
       - name: Update module manifest version
         shell: pwsh
         run: |
@@ -42,23 +48,32 @@ jobs:
       - name: Register GitHub Packages as PSRepository
         shell: pwsh
         run: |
-          $repoParams = @{
-            Name               = "GitHubPackages"
-            SourceLocation     = "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
-            PublishLocation    = "https://nuget.pkg.github.com/${{ github.repository_owner }}/"
-            InstallationPolicy = "Trusted"
-          }
-
           # Unregister if already exists (idempotent)
           if (Get-PSRepository -Name "GitHubPackages" -ErrorAction SilentlyContinue) {
             Unregister-PSRepository -Name "GitHubPackages"
           }
 
-          Register-PSRepository @repoParams
+          # Register without credentials — the published package is publicly readable
+          Register-PSRepository `
+            -Name               "GitHubPackages" `
+            -SourceLocation     "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" `
+            -PublishLocation    "https://nuget.pkg.github.com/${{ github.repository_owner }}/" `
+            -InstallationPolicy Trusted
 
       - name: Publish module to GitHub Packages
         shell: pwsh
         env:
-          NUGET_API_KEY: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          Publish-Module -Path "./InnaPs" -Repository "GitHubPackages" -NuGetApiKey $env:NUGET_API_KEY -Verbose
+          # Credentials are required only for the publish (write) operation
+          $credential = [PSCredential]::new(
+            "${{ github.actor }}",
+            (ConvertTo-SecureString $env:GITHUB_TOKEN -AsPlainText -Force)
+          )
+
+          Publish-Module `
+            -Path        "./InnaPs" `
+            -Repository  "GitHubPackages" `
+            -NuGetApiKey $env:GITHUB_TOKEN `
+            -Credential  $credential `
+            -Verbose
