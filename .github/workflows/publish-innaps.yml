@@ -47,31 +47,25 @@ jobs:
 
       - name: Register GitHub Packages as PSRepository
         shell: pwsh
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          $credential = [PSCredential]::new(
-            "${{ github.actor }}",
-            (ConvertTo-SecureString $env:GITHUB_TOKEN -AsPlainText -Force)
-          )
-
           # Unregister if already exists (idempotent)
           if (Get-PSRepository -Name "GitHubPackages" -ErrorAction SilentlyContinue) {
             Unregister-PSRepository -Name "GitHubPackages"
           }
 
+          # Register without credentials — the published package is publicly readable
           Register-PSRepository `
             -Name               "GitHubPackages" `
             -SourceLocation     "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" `
             -PublishLocation    "https://nuget.pkg.github.com/${{ github.repository_owner }}/" `
-            -InstallationPolicy Trusted `
-            -Credential         $credential
+            -InstallationPolicy Trusted
 
       - name: Publish module to GitHub Packages
         shell: pwsh
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          # Credentials are required only for the publish (write) operation
           $credential = [PSCredential]::new(
             "${{ github.actor }}",
             (ConvertTo-SecureString $env:GITHUB_TOKEN -AsPlainText -Force)
