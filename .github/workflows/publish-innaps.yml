@@ -34,11 +34,10 @@ jobs:
           fi
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
-      - name: Install NuGet provider and PowerShellGet
+      - name: Install PSResourceGet
         shell: pwsh
         run: |
-          Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force -Scope CurrentUser
-          Install-Module -Name PowerShellGet -Force -AllowClobber -Scope CurrentUser
+          Install-Module -Name Microsoft.PowerShell.PSResourceGet -Force -AllowClobber -Scope CurrentUser
 
       - name: Update module manifest version
         shell: pwsh
@@ -54,35 +53,22 @@ jobs:
           Write-Host "Module Version: $($manifest.Version)"
           Write-Host "Functions     : $($manifest.ExportedFunctions.Keys -join ', ')"
 
-      - name: Register GitHub Packages as PSRepository
+      - name: Register GitHub Packages as PSResourceRepository
         shell: pwsh
         run: |
-          # Unregister if already exists (idempotent)
-          if (Get-PSRepository -Name "GitHubPackages" -ErrorAction SilentlyContinue) {
-            Unregister-PSRepository -Name "GitHubPackages"
-          }
-
-          # Register without credentials — the published package is publicly readable
-          Register-PSRepository `
-            -Name               "GitHubPackages" `
-            -SourceLocation     "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" `
-            -PublishLocation    "https://nuget.pkg.github.com/${{ github.repository_owner }}/" `
-            -InstallationPolicy Trusted
+          Register-PSResourceRepository `
+            -Name    "GitHubPackages" `
+            -Uri     "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" `
+            -Trusted `
+            -Force
 
       - name: Publish module to GitHub Packages
         shell: pwsh
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Credentials are required only for the publish (write) operation
-          $credential = [PSCredential]::new(
-            "${{ github.actor }}",
-            (ConvertTo-SecureString $env:GITHUB_TOKEN -AsPlainText -Force)
-          )
-
-          Publish-Module `
-            -Path        "./InnaPs" `
-            -Repository  "GitHubPackages" `
-            -NuGetApiKey $env:GITHUB_TOKEN `
-            -Credential  $credential `
+          Publish-PSResource `
+            -Path       "./InnaPs" `
+            -Repository "GitHubPackages" `
+            -ApiKey     $env:GITHUB_TOKEN `
             -Verbose
